@@ -1,0 +1,130 @@
+﻿
+@{
+    ViewBag.Title = "VerifyOtp";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    #bodybg {
+        height: 100%;
+        background-size: cover;
+        background-image: url("../../Images/contactusbg.png");
+    }
+</style>
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+<div class="h-100">
+    <div class="col-sm-7 mx-auto">
+        <div class="card shadow mb-5 bg-white rounded" style="margin-top:100px; margin-bottom: 100px;">
+            <form method="post">
+                <div class="card-body col-sm-10 mx-auto ">
+                    <h5 class="text-center">Verify OTP</h5>
+                    <hr />
+                    <div class="form-horizontal">
+                        <div class="form-group row my-4">
+                            <label for="username" class="col-sm-3">OTP</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="txtotp" name="txtotp" maxlength="6" placeholder="Enter OTP" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <input type="submit" value="Verify" class="btn btn-success px-4 my-2" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Change Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="pass1">Enter Password</label>
+                    <input type="password" class="form-control" name="pass1" id="pass1">
+                </div>
+                <div class="form-group">
+                    <label for="pass2">Re-enter Password</label>
+                    <input type="password" class="form-control" name="pass2" id="pass2">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btn-change" data-dismiss="modal">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*<script>
+        $("#staticBackdrop").modal('toggle');
+    </script>*@
+@if (ViewBag.message != null)
+{
+    if (ViewBag.message == "done")
+    {
+        <script>
+            $("#staticBackdrop").modal('toggle');
+        </script>
+    }
+    @*else if (ViewBag.message == "changed")
+        {
+            <script>
+                Swal.fire(
+                    'Success!',
+                    'Your password has been changed successfully',
+                    'success'
+                )
+            </script>
+        }*@
+    else
+    {
+        <script>
+            Swal.fire(
+                'Error!',
+                '@ViewBag.message',
+                'error'
+            )
+        </script>
+    }
+}
+<script>
+    $("#btn-change").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "ChangePassword",
+            data: {
+                pass1: $("#pass1").val(),
+                pass2: $("#pass2").val()
+            },
+            success: function (result) {
+                if (result == "done") {
+                    Swal.fire(
+                        'Password Changed!',
+                        'Now you can do login with a new password!',
+                        'success'
+                    );
+                    block.remove();
+                }
+                else {
+                    Swal.fire(
+                        'Error!',
+                        result,
+                        'error'
+                    );
+                }
+            }
+        });
+    })
+</script>

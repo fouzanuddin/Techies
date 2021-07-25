@@ -1,0 +1,320 @@
+﻿@using System.Data
+@model DataSet
+@if (Session["id"] != null)
+{
+    if (Session["id"].ToString() == "1")
+    {
+        ViewBag.Title = "Subjects";
+        Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+else
+{
+    <script>
+            window.location.href = "@Url.Action("Login","Home")";
+    </script>
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+<link href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet" />
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group col-sm-2">
+                    <label for="Subjectcode">Subject Code</label>
+                    <div class="col">
+                        <input type="text" id="Subjectcode" name="Subjectcode" class="form-control" maxlength="20" required />
+                        @Html.ValidationMessage("Subjectcode", "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group col-sm-5">
+                    <label for="Subjectname">Subject Name</label>
+                    <div class="col">
+                        <input type="text" id="Subjectname" name="Subjectname" class="form-control" maxlength="100" required />
+                        @Html.ValidationMessage("Subjectname", "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group col">
+                    <label class="col">Sem: </label>
+                    <div class="col">
+                        <select id="Sem" name="Sem" class="form-control" required>
+                            <option value="" selected>Select</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                        @Html.ValidationMessage("Sem", "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group col">
+                    <label class="col">Year: </label>
+                    <div class="col">
+                        <input type="number" id="Year" name="Year" class="form-control col" min='2010' max="@DateTime.Now.Year.ToString()" required />
+                        @Html.ValidationMessage("Year", "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group col mt-2">
+                    <div class="col-md-offset-2 col">
+                        <br />
+                        <input type="submit" value="Add Subject" class="btn btn-success" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+<div class="card">
+    <div class="card-body">
+        <table class="table table-responsive-sm" id="tblsubjects">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Subject Code</th>
+                    <th scope="col">Subject Name</th>
+                    <th scope="col">Sem</th>
+                    <th scope="col">Year</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int i = 1;
+                }
+                @foreach (DataRow row in Model.Tables[0].Rows)
+                {
+                    <tr>
+                        <th scope="row">@i</th>
+                        <td>@row["SubjectCode"]</td>
+                        <td>@row["SubjectName"]</td>
+                        <td>@row["Sem"]</td>
+                        <td>@row["Year"]</td>
+                        <td>
+                            <button id=@row["Id"] class="btn btn-outline-warning btn-sm border-0 btn-edit"><i class="fas fa-edit"></i></button>
+                            <button id=@row["Id"] class="btn btn-outline-danger btn-sm border-0 btn-delete"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Alert</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure want to delete this subject?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btndelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Edit Modal -->
+<div class="modal fade" id="editmodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Edit Subject</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editsubjectcode">Subject Code</label>
+                    <input type="text" class="form-control" id="editsubjectcode" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label for="editsubjectname">Subject Name</label>
+                    <input type="text" class="form-control" id="editsubjectname" maxlength="100">
+                </div>
+                <div class="form-group row">
+                    <div class="col">
+                        <label for="editsem">Sem</label>
+                        <select id="editsem" class="form-control">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label for="edityear">Year</label>
+                        <input type="number" class="form-control" id="edityear" min='2010' max="@DateTime.Now.Year.ToString()">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="btn-update" data-dismiss="modal">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (ViewBag.message != null)
+{
+    if (ViewBag.message == "done")
+    {
+        <script>
+            Swal.fire(
+                'Submitted!',
+                'Subject added successfully!',
+                'success'
+            )
+        </script>
+    }
+    else
+    {
+        <script>
+            Swal.fire(
+                'Error!',
+                '@ViewBag.message',
+                'error'
+            )
+        </script>
+    }
+}
+
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tblsubjects').DataTable();
+    });
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+    let block, editid;
+    $(".btn-edit").click(function () {
+        $('#editmodal').modal('toggle');
+        editid = this.id;
+        block = this.parentElement.parentElement;
+        $("#editsubjectcode").val(block.children[1].innerText);
+        $("#editsubjectname").val(block.children[2].innerText);
+        $("#editsem").val(block.children[3].innerText);
+        $("#edityear").val(block.children[4].innerText);
+    })
+    $("#btn-update").click(function () {
+        if ($("#editsubjectcode").val() != "" && $("#editsubjectname").val() != "" && $("#editsem").val() != ""
+            && $("#edityear").val() >= 2010 && $("#edityear").val() <= new Date().getFullYear()) {
+            let newsubcode = $("#editsubjectcode").val();
+            let newsubname = $("#editsubjectname").val();
+            let newsem = $("#editsem").val();
+            let newyear = $("#edityear").val();
+            $.ajax({
+                type: "POST",
+                url: "UpdateSubject",
+                data: {
+                    id: editid,
+                    subcode: newsubcode,
+                    subname: newsubname,
+                    sem: newsem,
+                    year: newyear
+                },
+                success: function (result) {
+                    if (result == "done") {
+                        Swal.fire(
+                            'Success!',
+                            'Subject updated successfully!',
+                            'success'
+                        );
+                        block.children[1].innerText = newsubcode;
+                        block.children[2].innerText = newsubname;
+                        block.children[3].innerText = newsem;
+                        block.children[4].innerText = newyear;
+                    }
+                    else {
+                        Swal.fire(
+                            'Error!',
+                            result,
+                            'error'
+                        )
+                    }
+                }
+            });
+        }
+        else {
+            Swal.fire(
+                'Error!',
+                'Invalid! Please enter valid details',
+                'error'
+            )
+        }
+    })
+    let deleteid;
+    $(".btn-delete").click(function () {
+        $('#deletemodal').modal('toggle');
+        deleteid = this.id;
+        block = this.parentElement.parentElement;
+    })
+    $("#btndelete").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "DeleteSubject",
+            data: {
+                id: deleteid
+            },
+            success: function (result) {
+                if (result == "done") {
+                    Swal.fire(
+                        'Success!',
+                        'Subject Deleted successfully!',
+                        'success'
+                    );
+                    block.remove();
+                }
+                else {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong!',
+                        'error'
+                    );
+                }
+            }
+        });
+    })
+</script>

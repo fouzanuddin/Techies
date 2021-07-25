@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Admin-Lte",
+    "\\Content",
+    "\\Controllers",
+    "\\Models",
+    "\\Views",
+    "\\Views\\admin",
+    "\\Views\\examiner",
+    "\\Views\\Home",
+    "\\Views\\Shared"
+  ],
+  "SelectedNode": "\\Views\\admin\\AddExaminer.cshtml",
+  "PreviewInSolutionExplorer": false
+}

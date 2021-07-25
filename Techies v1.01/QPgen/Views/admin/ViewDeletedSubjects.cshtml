@@ -1,0 +1,122 @@
+﻿@using System.Data
+@model DataSet
+@if (Session["id"] != null)
+{
+    if (Session["id"].ToString() == "1")
+    {
+        ViewBag.Title = "Deleted Subjects";
+        Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+else
+{
+    <script>
+            window.location.href = "@Url.Action("Login","Home")";
+    </script>
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+<link href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet" />
+<div class="card">
+    <div class="card-body">
+        <table class="table table-responsive-sm" id="tblsubjects">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Subject Code</th>
+                    <th scope="col">Subject Name</th>
+                    <th scope="col">Sem</th>
+                    <th scope="col">Year</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int i = 1;
+                }
+                @foreach (DataRow row in Model.Tables[0].Rows)
+                {
+                    <tr>
+                        <th scope="row">@i</th>
+                        <td>@row["SubjectCode"]</td>
+                        <td>@row["SubjectName"]</td>
+                        <td>@row["Sem"]</td>
+                        <td>@row["Year"]</td>
+                        <td>
+                            <button id=@row["Id"] class="btn btn-success btn-sm btn-restore"><i class="fas fa-redo"></i></button>
+                        </td>
+                    </tr>
+                    i++;
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Restore Modal -->
+<div class="modal fade" id="restoremodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Alert</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure want to restore this subject?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" data-dismiss="modal" id="btnrestore">Restore</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tblsubjects').DataTable();
+    });
+    $(".btn-restore").click(function () {
+        rid = this.id;
+        block = this.parentElement.parentElement;
+        $('#restoremodal').modal('toggle');
+    })
+    $("#btnrestore").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "RestoreSubject",
+            data: {
+                id: rid
+            },
+            success: function (result) {
+                if (result == "done") {
+                    Swal.fire(
+                        'Success!',
+                        'Examiner Restored successfully!',
+                        'success'
+                    );
+                    block.remove();
+                }
+                else {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong!',
+                        'error'
+                    );
+                }
+            }
+        });
+    })
+</script>
+

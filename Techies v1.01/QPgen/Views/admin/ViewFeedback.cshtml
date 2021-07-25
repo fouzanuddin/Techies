@@ -1,0 +1,134 @@
+﻿@using System.Data
+@model DataSet
+@if (Session["id"] != null)
+{
+    if (Session["id"].ToString() == "1")
+    {
+        ViewBag.Title = "View Feedback";
+        Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+else
+{
+    <script>
+            window.location.href = "@Url.Action("Login","Home")";
+    </script>
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+@{
+    string ispinned = "";
+}
+@foreach (DataRow row in Model.Tables[0].Rows)
+{
+
+    if (@row["IsPinned"].ToString() == "1")
+    {
+        ispinned = "btn btn-outline-primary";
+    }
+    else
+    {
+        ispinned = "btn btn-outline-secondary";
+    }
+    <div class="card col-sm-6 mx-auto">
+        <div class="card-header">
+            <img src='@row["image"]' class="rounded-circle img-fluid" width="30" alt="error" height="30" />
+            @row["fname"] @row["lname"]
+            <span style="float:right">
+                <button id='@row["id"]' class="btn @ispinned btn-sm border-0 btn-pin"><i class="fas fa-thumbtack"></i></button>
+                <button id='@row["id"]' class="btn btn-outline-danger btn-sm border-0 btn-delete"><i class="fas fa-trash-alt"></i></button>
+            </span>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">@row["title"]</h5>
+            <p class="card-text">@row["Feedback"]</p>
+        </div>
+    </div>
+}
+<!-- Delete Modal -->
+<div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Alert</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure want to delete this examiner?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btndelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let block, deleteid;
+    $(".btn-delete").click(function () {
+        deleteid = this.id;
+        block = this.parentElement.parentElement.parentElement;
+        console.log(block);
+        $('#deletemodal').modal('toggle');
+    })
+    $("#btndelete").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "DeleteFeedback",
+            data: {
+                id: deleteid
+            },
+            success: function (result) {
+                if (result == "done") {
+                    Swal.fire(
+                        'Success!',
+                        'Feedback Deleted successfully!',
+                        'success'
+                    );
+                    block.remove();
+                }
+                else {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong!',
+                        'error'
+                    );
+                }
+            }
+        });
+    })
+    $(".btn-pin").click(function () {
+        let btn = this;
+        $.ajax({
+            type: "POST",
+            url: "PinFeedback",
+            data: {
+                id: this.id
+            },
+            success: function (result) {
+                if (result == "done") {
+                    if (btn.classList.contains("btn-outline-secondary")) {
+                        btn.classList.remove("btn-outline-secondary");
+                        btn.classList.add("btn-outline-primary");
+                    }
+                    else {
+                        btn.classList.remove("btn-outline-primary");
+                        btn.classList.add("btn-outline-secondary");
+                    }
+                }
+            }
+        });
+    });
+</script>

@@ -1,0 +1,42 @@
+﻿
+@{
+    ViewBag.Title = "ContactUs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+<style>
+    #bodybg {
+        height: 100%;
+        background-size: cover;
+        background-image: url("../../Images/contactusbg.png");
+    }
+</style>
+<script type="text/javascript" src="~/Scripts/linkedin.js" async defer></script>
+<div class="text-center" style="margin-top: 5%;">
+    <div class="LI-profile-badge" data-version="v1" data-size="large" data-locale="en_US" data-type="vertical" data-theme="dark" data-vanity="fouzanuddin" style=" max-width: 320px;">
+        <!--<a class="LI-simple-link" href='https://in.linkedin.com/in/fouzanuddin?trk=profile-badge'>Fouzan</a>-->
+    </div>
+    <br />
+    <div class="LI-profile-badge" data-version="v1" data-size="large" data-locale="en_US" data-type="vertical" data-theme="dark" data-vanity="gayatripatel1807" style=" max-width: 320px;">
+        <!--<a class="LI-simple-link" href='https://www.linkedin.com/in/gayatripatel1807?trk=profile-badge'>Gayatri</a>-->
+    </div>
+    <br />
+    <div class="LI-profile-badge" data-version="v1" data-size="large" data-locale="en_US" data-type="vertical" data-theme="dark" data-vanity="avinash-kokate-7b130215a" style=" max-width: 320px;">
+        <!--<a class="LI-simple-link" href='https://www.linkedin.com/in/avinash-kokate-7b130215a?trk=profile-badge'>Gayatri</a>-->
+    </div>
+    <br />
+    <div class="LI-profile-badge" data-version="v1" data-size="large" data-locale="en_US" data-type="vertical" data-theme="dark" data-vanity="sreeja-reddy-janga-22393513a" style=" max-width: 320px;">
+        <!--<a class="LI-simple-link" href='https://www.linkedin.com/in/sreeja-reddy-janga-22393513a?trk=profile-badge'>Gayatri</a>-->
+    </div>
+    <div class="LI-profile-badge" data-version="v1" data-size="large" data-locale="en_US" data-type="vertical" data-theme="dark" data-vanity="suraj-phanendra-a-17421914b" style=" max-width: 320px;">
+        <!--<a class="LI-simple-link" href='https://www.linkedin.com/in/suraj-phanendra-a-17421914b?trk=profile-badge'>Gayatri</a>-->
+    </div>
+    <div class="LI-profile-badge" data-version="v1" data-size="large" data-locale="en_US" data-type="vertical" data-theme="dark" data-vanity="varsha-challa-46b227146" style=" max-width: 320px;">
+        <!--<a class="LI-simple-link" href='https://www.linkedin.com/in/varsha-challa-46b227146?trk=profile-badge'>Gayatri</a>-->
+    </div>
+</div>

@@ -1,0 +1,52 @@
+﻿@using System.Data
+@model DataSet
+@{
+    if (Session["id"] != null)
+    {
+        if (Session["id"].ToString() != "1")
+        {
+            ViewBag.Title = "Subjects";
+            Layout = "~/Views/Shared/_UserMaster.cshtml";
+        }
+        else
+        {
+            <script>
+            window.location.href = "@Url.Action("Login","Home")";
+            </script>
+        }
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+@foreach (DataRow row in Model.Tables[0].Rows)
+{
+    <div class="card col-sm-8 mx-auto">
+        <div class="card-body">
+            <h3>@row["SubjectCode"]: @row["SubjectName"]</h3>
+            <div class="row">
+                <div class="col-sm-2">Sem: @row["Sem"]</div>
+                <div class="col-sm-2">Year: @row["Year"]</div>
+            </div>
+            <div class="my-0">
+                <form method="post" action="Subjects">
+                    @Html.AntiForgeryToken()
+                    <button id='sid' name="sid" value='@row["SubjectId"]' type="submit" class="btn btn-primary select-sub">Manage Question Bank</button>
+                    <button id='sch' name="sch" value='@row["SubjectId"]' type="submit" class="btn btn-primary select-ch">Manage Chapters</button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+
+

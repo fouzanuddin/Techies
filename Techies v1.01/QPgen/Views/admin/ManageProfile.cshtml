@@ -1,0 +1,268 @@
+﻿@using QPgen.Controllers
+
+@{
+    int flag = 0;
+    if (Session["id"] != null)
+    {
+        if (Session["id"].ToString() == "1")
+        {
+            flag = 1;
+            ViewBag.Title = "Manage Profile";
+            Layout = "~/Views/Shared/_AdminMaster.cshtml";
+            
+        }
+        else
+        {
+            <script>
+            window.location.href = "@Url.Action("Login", "Home")";
+            </script>
+        }
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login", "Home")";
+        </script>
+    }
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+@if (flag == 1)
+{
+    databaseHelperController db = new databaseHelperController();
+    string[] profile = db.getProfile(Convert.ToInt32(Session["Id"]));
+<div class="container">
+    <div class="card col-sm-10 mx-auto">
+        <form method="post">
+            <div class="card-body">
+                <div class="mx-auto">
+                    <div class="text-center">
+                        <img src="@profile[3]" alt="profilepic" class="img-fluid rounded-circle" height="150" width="150" /><br />
+                        <button type="button" id="changeimage" class="btn btn-sm btn-secondary mt-2">Change Profile Picture</button>
+                    </div>
+                    <hr />
+                    <div class="row col-sm-10 mx-auto">
+                        <div class="col-md-6 pr-md-1">
+                            <div class="form-group">
+                                <label for="fname">First Name</label>
+                                <input type="text" class="form-control" id="fname" name="fname" placeholder="FirstName" maxlength="20" value='@profile[0]' required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 pl-md-1">
+                            <div class="form-group">
+                                <label for="lname">Last Name</label>
+                                <input type="text" class="form-control" id="lname" name="lname" placeholder="Last Name" maxlength="20" value='@profile[1]' required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row col-sm-10 mx-auto">
+                        <div class="col-md-4 pr-md-1">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" placeholder="Email" value='@profile[2]' disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-4 px-md-1">
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender" name="gender" class="form-control">
+                                    @if (profile[4] == "m")
+                                    {
+                                        <option value="m" selected>Male</option>
+                                        <option value="f">Female</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="m">Male</option>
+                                        <option value="f" selected>Female</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 pl-md-1 mt-2">
+                            <div class="form-group">
+                                <br />
+                                <button class="btn btn-sm btn-block btn-secondary" id="cp" onclick="preventDefault;" data-toggle="modal" data-target="#ChangePassword">Change Password</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer text-center bg-white">
+                <input type="submit" class="btn btn-fill btn-primary" value="Save" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--Change Password Modal -->
+<div class="modal fade" id="ChangePassword" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Change Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="cpass">Current Password</label>
+                    <input type="password" class="form-control" id="cpass" placeholder="Enter your current password">
+                </div>
+                <div class="form-group">
+                    <label for="pass1">Password</label>
+                    <input type="password" class="form-control" id="pass1" placeholder="Enter your new password">
+                </div>
+                <div class="form-group">
+                    <label for="pass2">Re-enter Password</label>
+                    <input type="password" class="form-control" id="pass2" placeholder="Re-enter your new password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="change" data-dismiss="modal">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Change Image Modal -->
+<div class="modal fade" id="imagemodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Profile Image</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("UpdateImage", "admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="modal-body">
+                    <div class="form-group">
+                        <img class="img-fluid" src='@profile[3]' id="preview" height="100" width="100" alt="profilepic" />
+                        @*<label for="img">Click here to upload image</label>*@
+                        <input type="file" id="profileimage" class="text-primary" name="profileimage" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" id="updateimage" class="btn btn-primary">Update Image</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+}
+@if (ViewBag.message != null)
+{
+    if (ViewBag.message == "done")
+    {
+        <script>
+            Swal.fire(
+                'Submitted!',
+                'Profile saved successfully!',
+                'success'
+            )
+        </script>
+    }
+    else
+    {
+        <script>
+            Swal.fire(
+                'Error!',
+                '@ViewBag.message',
+                'error'
+            )
+        </script>
+    }
+}
+<script>
+    document.getElementById("cp").addEventListener("click", function (event) {
+        event.preventDefault()
+    });
+    $("#change").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "/examiner/ChangePassword",
+            data: {
+                cpass: $("#cpass").val(),
+                pass1: $("#pass1").val(),
+                pass2: $("#pass2").val()
+            },
+            success: function (result) {
+                if (result == "done") {
+                    Swal.fire(
+                        'Success!',
+                        'Password Changed successfully!',
+                        'success'
+                    );
+                }
+                else {
+                    Swal.fire(
+                        'Error!',
+                        result,
+                        'error'
+                    );
+                }
+            }
+        });
+    })
+    $("#changeimage").click(function () {
+        $("#imagemodal").modal("toggle");
+    });
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#preview').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]); // convert to base64 string
+        }
+    }
+
+    $("#profileimage").change(function () {
+        readURL(this);
+    });
+        /*$("#updateimage").click(function () {
+if ($("#img").val() != "") {
+$.ajax({
+type: "POST",
+url: "UpdateImage",
+data: {
+profileimage: $('#img').prop('files')
+},
+success: function (result) {
+if (result == "done") {
+    Swal.fire(
+        'Success!',
+        'Profile picture changed successfully!',
+        'success'
+    );
+}
+else {
+    Swal.fire(
+        'Error!',
+        result,
+        'error'
+    );
+}
+}
+});
+}
+else {
+Swal.fire(
+'Alert!',
+'No image selected',
+'info'
+);
+}
+})*/
+</script>

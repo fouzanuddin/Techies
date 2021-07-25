@@ -1,0 +1,216 @@
+﻿@using System.Data
+@model DataSet
+@{
+    int flag = 0;
+    if (Session["id"] != null)
+    {
+        if (Session["id"].ToString() != "1")
+        {
+            flag = 1;
+            ViewBag.Title = "SubUnits: " + ViewBag.unitname;
+            Layout = "~/Views/Shared/_UserMaster.cshtml";
+        }
+        else
+        {
+            <script>
+            window.location.href = "@Url.Action("Login","Home")";
+            </script>
+        }
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@if (flag == 1)
+{
+    <div class="card">
+        <form method="post">
+            <div class="card-body">
+                <div class="row">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group col-sm-2">
+                        <label for="suno">SubUnit No.</label>
+                        <input type="number" class="form-control" id="suno" name="suno">
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="suname">Subunit Name</label>
+                        <input type="text" class="form-control" id="suname" name="suname">
+                    </div>
+                    <div class="form-group col">
+                        <br />
+                        <input type="submit" class="btn btn-primary" value="Add SubUnit" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <hr />
+    string id;
+    foreach (DataRow row in Model.Tables[0].Rows)
+    {
+        <div class="card my-3 col-sm-8 mx-auto">
+            <div class="card-body row">
+                <div class="col"><span> <span>@row["SubUnitNo"]</span>: <strong>@row["SubUnitName"]</strong></span></div>
+                <div class="col text-right">
+                    @{
+                        id = row["Id"].ToString();
+                    }
+                    <button id='@row["Id"]' class="btn-info btn-sm border-0 btn-edit"><i class="fas fa-edit"></i></button>
+                    <button id='@row["Id"]' class="btn-danger btn-sm border-0 btn-delete"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Alert</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure want to delete this SubUnit?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="btndelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Update Modal -->
+<div class="modal fade" id="editmodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Edit Subunit</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editsuno">Subunit No.</label>
+                    <input type="number" class="form-control" id="editsuno" name="editsuno">
+                </div>
+                <div class="form-group">
+                    <label for="editunitname">Subunit Name</label>
+                    <input type="text" class="form-control" id="editsuname" name="editsuname" maxlength="100">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" id="btn-update" class="btn btn-warning" data-dismiss="modal">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+@if (ViewBag.message != null)
+{
+    if (ViewBag.message == "done")
+    {
+        <script>
+            Swal.fire(
+                'Submitted!',
+                'Subunit added successfully!',
+                'success'
+            )
+        </script>
+    }
+    else
+    {
+        <script>
+            Swal.fire(
+                'Error!',
+                '@ViewBag.message',
+                'error'
+            )
+        </script>
+    }
+}
+
+<script>
+    let block, uid;
+    $(".btn-edit").click(function () {
+        id = this.id;
+        $('#editmodal').modal('toggle');
+        $("#editsuno").val(this.parentElement.parentElement.children[0].children[0].children[0].innerText);
+        $("#editsuname").val(this.parentElement.parentElement.children[0].children[0].children[1].innerText);
+        block = this.parentElement.parentElement.parentElement;
+        console.log()
+    });
+    $("#btn-update").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "UpdateSubUnit",
+            data: {
+                suid: id,
+                suno: $("#editsuno").val(),
+                suname: $("#editsuname").val()
+            },
+            success: function (result) {
+                if (result == "done") {
+                    Swal.fire(
+                        'Success!',
+                        'Updated successfully!',
+                        'success'
+                    );
+                    block.children[0].children[0].children[0].children[0].innerText = $("#editsuno").val();
+                    block.children[0].children[0].children[0].children[1].innerText = $("#editsuname").val();
+                }
+                else {
+                    Swal.fire(
+                        'Error!',
+                        result,
+                        'error'
+                    );
+                }
+            }
+        });
+    })
+    let deleteid;
+    $(".btn-delete").click(function () {
+        $('#deletemodal').modal('toggle');
+        deleteid = this.id;
+        block = this.parentElement.parentElement.parentElement;
+    })
+    $("#btndelete").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "DeleteSubUnit",
+            data: {
+                suid: deleteid
+            },
+            success: function (result) {
+                if (result == "done") {
+                    Swal.fire(
+                        'Success!',
+                        'Deleted successfully!',
+                        'success'
+                    );
+                    block.remove();
+                }
+                else {
+                    Swal.fire(
+                        'Error!',
+                        result,
+                        'error'
+                    );
+                }
+            }
+        });
+    })
+</script>

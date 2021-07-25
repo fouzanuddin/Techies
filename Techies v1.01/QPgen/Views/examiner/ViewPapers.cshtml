@@ -1,0 +1,118 @@
+﻿@using System.Data
+@model DataSet
+@{
+    int flag = 0;
+    if (Session["id"] != null)
+    {
+        if (Session["id"].ToString() != "1")
+        {
+            flag = 1;
+            ViewBag.Title = "View Papers";
+            Layout = "~/Views/Shared/_UserMaster.cshtml";
+        }
+        else
+        {
+            <script>
+                window.location.href = "@Url.Action("Login","Home")";
+            </script>
+        }
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+    string date = "";
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@if (flag == 1)
+{
+
+    foreach (DataRow row in Model.Tables[0].Rows)
+    {
+        <div class="card col-sm-8 mx-auto">
+            <div class="card-body">
+                <div class="alert alert-secondary text-dark row">
+                    <div class="col"><strong>Title: @row["Title"]</strong></div>
+                    <div class="col text-right">
+                        <form method="post">
+                            <button type="submit" name="btnview" class="btn btn-secondary btn-sm border-0 btn-edit" value='@row["Id"]'><i class="fas fa-eye"> View</i></button>
+
+                            <button type="button" class="btn btn-danger btn-sm border-0 btn-delete" id='@row["Id"]'><i class="fas fa-trash-alt"></i></button>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    @{
+                        date = row["Edate"].ToString();
+                        date = date.Substring(0, 10);
+                    }
+                    <div class="col">Duration: @row["Duration"]</div>
+                    <div class="col">Total Marks: @row["Marks"]</div>
+                    <div class="col">Questions: @row["Noq"]</div>
+                    <div class="col">Date: @date</div>
+                </div>
+            </div>
+        </div>
+    }
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Alert</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure want to delete this Paper?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="btndelete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    let deleteid;
+    $(".btn-delete").click(function () {
+        $('#deletemodal').modal('toggle');
+        deleteid = this.id;
+        block = this.parentElement.parentElement.parentElement.parentElement.parentElement;
+        console.log(block);
+    })
+    $("#btndelete").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "DeletePaper",
+            data: {
+                pid: deleteid
+            },
+            success: function (result) {
+                if (result == "done") {
+                    Swal.fire(
+                        'Success!',
+                        'Deleted successfully!',
+                        'success'
+                    );
+                    block.remove();
+                }
+                else {
+                    Swal.fire(
+                        'Error!',
+                        result,
+                        'error'
+                    );
+                }
+            }
+        });
+    })
+</script>

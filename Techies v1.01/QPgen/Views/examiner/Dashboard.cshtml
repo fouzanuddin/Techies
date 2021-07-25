@@ -1,0 +1,28 @@
+﻿@{
+    if (Session["id"] != null)
+    {
+        if (Session["id"].ToString() != "1")
+        {
+            ViewBag.Title = "Dashboard";
+            Layout = "~/Views/Shared/_UserMaster.cshtml";
+        }
+        else
+        {
+            <script>
+            window.location.href = "@Url.Action("Login","Home")";
+            </script>
+        }
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()

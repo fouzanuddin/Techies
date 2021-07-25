@@ -1,0 +1,129 @@
+﻿@using System.Data
+@using System.Collections;
+@model DataSet
+@{
+    int flag = 0;
+    if (Session["id"] != null)
+    {
+        if (Session["id"].ToString() != "1")
+        {
+            flag = 1;
+            ViewBag.Title = "Paper Preview";
+            Layout = "~/Views/Shared/_UserMaster.cshtml";
+
+        }
+        else
+        {
+            <script>
+            window.location.href = "@Url.Action("Login","Home")";
+            </script>
+        }
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+    int z = 1;
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js" integrity="sha512-pdCVFUWsxl1A4g0uV6fyJ3nrnTGeWnZN2Tl/56j45UvZ1OMdm9CIbctuIHj+yBIRTUUyv6I9+OivXj4i0LPEYA==" crossorigin="anonymous"></script>
+@if (flag == 1)
+{
+    <div class="text-center">
+        <form method="post" action="/examiner/PaperPreview">
+            @Html.AntiForgeryToken()
+            <input type="submit" name="btnsave" value="Save Paper" class="btn btn-info" />
+            <button type="button" id="download" class="btn btn-info">Direct Download</button>
+        </form>
+    </div>
+
+    <hr />
+    <div class="card" id="invoice">
+        <div class="card-body container">
+
+            <h2 class="text-center">University of North Texas</h2>
+            <h3 class="text-center">Computer Science and Engineering</h3>
+            <h4 class="text-center">Subject : @ViewBag.subname @ViewBag.subjectname | @ViewBag.qptitle</h4>
+            <div class="row">
+                <div class="col">
+                    <p>Duration: @ViewBag.duration</p>
+                    <p>Total Marks: @ViewBag.total</p>
+                </div>
+                <div class="col text-right">
+                    <p>Date: @ViewBag.date</p>
+                    <p>Total Questions: @ViewBag.noq</p>
+                </div>
+            </div>
+            <hr />
+            <div class="col-sm-10 mx-auto">
+                @*@for (int i = 0; i < Model.Tables.Count; i++)
+                    {
+                        foreach (DataRow row in Model.Tables[i].Rows)
+                        {
+                            if (z <= Convert.ToInt32(Session["noq"]))
+                            {
+                                <p>@z ) @row["question"]</p>
+                                <p class="ml-4">a) @row["optionA"]</p>
+                                <p class="ml-4">b) @row["optionB"]</p>
+                                <p class="ml-4">c) @row["optionC"]</p>
+                                <p class="ml-4">d) @row["optionD"]</p>
+                                z++;
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                        }
+                    }*@
+                @{
+                    int tabs = Model.Tables.Count;
+                    string image = "";
+                    ArrayList arrqid = new ArrayList();
+                }
+
+                @for (int j = 0; j < Model.Tables[0].Rows.Count; j++)
+                {
+                    for (int i = 0; i < tabs; i++)
+                    {
+                        if (z <= Convert.ToInt32(ViewBag.noq))
+                        {
+                            image = @Model.Tables[i].Rows[j].ItemArray[9].ToString();
+
+                            <strong>@z) @Model.Tables[i].Rows[j].ItemArray[1]</strong><br />
+                            if (image != "")
+                            {
+                                <img class="img-fluid" src='@image' height="400" width="400" />
+                            }
+                            <p class="ml-4">a) @Model.Tables[i].Rows[j].ItemArray[2]</p>
+                            <p class="ml-4">b) @Model.Tables[i].Rows[j].ItemArray[3]</p>
+                            <p class="ml-4">c) @Model.Tables[i].Rows[j].ItemArray[4]</p>
+                            <p class="ml-4">d) @Model.Tables[i].Rows[j].ItemArray[5]</p><br />
+
+                            arrqid.Add(Model.Tables[i].Rows[j].ItemArray[0]);
+                            z++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                @{
+                    Session["qdata"] = arrqid;
+                }
+            </div>
+
+            <hr />
+            <h3 class="text-center">Best of luck</h3>
+        </div>
+    </div>
+}
+<script src="~/Scripts/pdfconvertor.js"></script>
+

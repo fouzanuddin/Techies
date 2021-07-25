@@ -1,0 +1,101 @@
+﻿@using QPgen.Controllers;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Index";
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+@{
+    databaseHelperController db = new databaseHelperController();
+    string[] data = db.getinfo();
+}
+<style>
+    #bodybg {
+        height: 100%;
+        /* background-position: center;
+    background-repeat: no-repeat;*/
+        background-size: cover;
+        background-image: url("../../Images/indexbg.png");
+    }
+
+    #div2 {
+        background-color: rgba(0,0,0,0.8);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        z-index: 5;
+    }
+</style>
+<link href="~/Admin-Lte/adminlte.min.css" rel="stylesheet" />
+<!--link href="~/Fontawesome/css/all.min.css" rel="stylesheet" /--->
+
+<div id="particles-js">
+    <div class="container-fluid" id="div1">
+        <div class="container mx-auto" id="div2">
+            <h2 class="my-2 text-success" style="text-align:center;">Question Paper Generator</h2>
+            <hr style="background-color:steelblue;" />
+            <div class="row">
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box bg-secondary">
+                        <span class="info-box-icon bg-info"><i class="fas fa-users text-dark"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Teachers</span>
+                            <span class="info-box-number">@data[0]</span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box bg-secondary">
+                        <span class="info-box-icon bg-success"><i class="fas fa-file-alt text-dark"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Question Banks</span>
+                            <span class="info-box-number">@data[1]</span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box bg-secondary">
+                        <span class="info-box-icon bg-warning"><i class="far fa-copy text-dark"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Papers Generated</span>
+                            <span class="info-box-number">@data[2]</span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box bg-secondary">
+                        <span class="info-box-icon bg-danger"><i class="fas fa-question text-dark"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Questions</span>
+                            <span class="info-box-number">@data[3]</span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/particles.js"></script>
+<script src="~/Scripts/app.js"></script>

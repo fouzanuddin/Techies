@@ -1,0 +1,59 @@
+﻿@using System.Data
+@model DataSet
+@if (Session["id"] != null)
+{
+    if (Session["id"].ToString() == "1")
+    {
+        ViewBag.Title = "Papers";
+        Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+else
+{
+    <script>
+            window.location.href = "@Url.Action("Login","Home")";
+    </script>
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+<link href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet" />
+<form method="post">
+    <table class="table table-responsive-sm" id="tblsubjects">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col">Subject Code</th>
+                <th scope="col">Subject Name</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (DataRow row in Model.Tables[0].Rows)
+            {
+                <tr>
+                    <th scope="row">@row["SubjectCode"]</th>
+                    <td>@row["SubjectName"]</td>
+                    <td>
+                        <button type="submit" name="sid" value='@row["SubjectId"]' class="btn btn-outline-success btn-sm border-0 btn-view"><i class="fas fa-eye"> View Papers</i></button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tblsubjects').DataTable();
+    });
+</script>
+

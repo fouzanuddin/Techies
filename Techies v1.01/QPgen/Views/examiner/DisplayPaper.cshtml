@@ -1,0 +1,79 @@
+﻿@using System.Data
+@model DataSet
+@{
+    int flag = 0;
+    if (Session["id"] != null && Session["pid"] != null)
+    {
+        if (Session["id"].ToString() != "1")
+        {
+            flag = 1;
+            ViewBag.Title = "Display Paper";
+            Layout = "~/Views/Shared/_UserMaster.cshtml";
+        }
+        else
+        {
+            <script>
+            window.location.href = "@Url.Action("Login","Home")";
+            </script>
+        }
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+@if (flag == 1)
+{
+
+    <div class="card" id="invoice">
+        <div class="card-body container">
+
+            <h2 class="text-center">University of North Texas</h2>
+            <h3 class="text-center">Computer science and Engineering</h3>
+            <h4 class="text-center">Subject : @ViewBag.subcode @ViewBag.subname | @Model.Tables[0].Rows[0][4]</h4>
+            @{
+                string image = "";
+                int z = 1;
+                string date = @Model.Tables[0].Rows[0][3].ToString();
+                date = date.Substring(0, 10);
+            }
+            <div class="row">
+                <div class="col">
+                    <p>Duration: @Model.Tables[0].Rows[0][5]</p>
+                    <p>Total Marks: @Model.Tables[0].Rows[0][6]</p>
+                </div>
+                <div class="col text-right">
+                    <p>Date: @date</p>
+                    <p>Total Questions: @Model.Tables[0].Rows[0][7]</p>
+                </div>
+            </div>
+            <hr />
+
+            @foreach (DataRow row in Model.Tables[1].Rows)
+            {
+                image = row["Image"].ToString();
+
+                <strong>@z) @row["Question"]</strong><br />
+                if (image != "")
+                {
+                    <img class="img-fluid" src='@image' height="400" width="400" />
+                }
+                <p class="ml-4">a) @row["OptionA"]</p>
+                <p class="ml-4">b) @row["OptionB"]</p>
+                <p class="ml-4">c) @row["OptionC"]</p>
+                <p class="ml-4">d) @row["OptionD"]</p><br />
+                z++;
+            }
+            <hr />
+            <h3 class="text-center">Best of luck</h3>
+        </div>
+    </div>
+}

@@ -1,0 +1,122 @@
+﻿@using System.Data
+@model DataSet
+@if (Session["id"] != null)
+{
+    if (Session["id"].ToString() == "1")
+    {
+        ViewBag.Title = "View Deleted Examiners";
+        Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+else
+{
+    <script>
+            window.location.href = "@Url.Action("Login","Home")";
+    </script>
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<!----link href="~/Fontawesome/css/all.min.css" rel="stylesheet" /-->
+<link href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet" />
+<table class="table table-responsive-sm" id="tblexaminer">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Profile</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Restore</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int i = 1;
+        }
+        @foreach (DataRow row in Model.Tables[0].Rows)
+        {
+            <tr>
+                <th scope="row">@i</th>
+                <td><img src='@row["Image"]' alt="error" height="100px" width="100px" class="img-fluid"</td>
+                <td>@row["Fname"]</td>
+                <td>@row["Lname"]</td>
+                <td>@row["Email"]</td>
+                <td>
+                    <button id=@row["Id"] class="btn btn-success btn-sm btn-redo"><i class="fas fa-redo"></i></button>
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+<!-- Restore Modal -->
+<div class="modal fade" id="restoremodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Alert</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure want to restore this examiner?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" data-dismiss="modal" id="btnrestore">Restore</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tblexaminer').DataTable();
+    });
+
+    let rid = 0;
+    let block;
+    $(".btn-redo").click(function () {
+        rid = this.id;
+        block = this.parentElement.parentElement;
+        $('#restoremodal').modal('toggle');
+    })
+    $("#btnrestore").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "RestoreExaminer",
+            data: {
+                id: rid
+            },
+            success: function (result) {
+                if (result == "done") {
+                    Swal.fire(
+                        'Success!',
+                        'Examiner Restored successfully!',
+                        'success'
+                    );
+                    block.remove();
+                }
+                else {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong!',
+                        'error'
+                    );
+                }
+            }
+        });
+    })
+</script>

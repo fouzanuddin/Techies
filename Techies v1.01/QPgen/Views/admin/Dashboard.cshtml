@@ -1,0 +1,91 @@
+﻿@using QPgen.Controllers;
+@if (Session["id"] != null)
+{
+    if (Session["id"].ToString() == "1")
+    {
+        Layout = "~/Views/Shared/_AdminMaster.cshtml";
+        ViewBag.Title = "Dashboard";
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+else
+{
+    <script>
+            window.location.href = "@Url.Action("Login","Home")";
+    </script>
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+@{ 
+    databaseHelperController db = new databaseHelperController();
+    string[] data = db.getinfo();
+}
+<div class="row">
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Teachers</span>
+                <span class="info-box-number">@data[0]</span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-success"><i class="fas fa-file-alt"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Question Banks</span>
+                <span class="info-box-number">@data[1]</span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-warning"><i class="far fa-copy"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Papers Generated</span>
+                <span class="info-box-number">@data[2]</span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+    <div class="col-md-3 col-sm-6 col-12">
+        <div class="info-box">
+            <span class="info-box-icon bg-danger"><i class="fas fa-question"></i></span>
+
+            <div class="info-box-content">
+                <span class="info-box-text">Questions</span>
+                <span class="info-box-number">@data[3]</span>
+            </div>
+            <!-- /.info-box-content -->
+        </div>
+        <!-- /.info-box -->
+    </div>
+    <!-- /.col -->
+</div>
+<hr />
+<div class="container-fluid">
+    <div class="jumbotron text-center">
+        <h2>Welcome Admin</h2>
+    </div>
+</div>

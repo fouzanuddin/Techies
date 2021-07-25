@@ -1,0 +1,75 @@
+﻿@using System.Data
+@model DataSet
+@{
+    if (Session["id"] != null)
+    {
+        if (Session["id"].ToString() != "1")
+        {
+            ViewBag.Title = "Question Banks";
+            Layout = "~/Views/Shared/_UserMaster.cshtml";
+        }
+        else
+        {
+            <script>
+            window.location.href = "@Url.Action("Login","Home")";
+            </script>
+        }
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+<div class="accordion" id="accordionExample">
+    @{
+        int i = 1;
+    }
+    @foreach (DataRow row in Model.Tables["units"].Rows)
+    {
+        <div class="card container">
+            <div class="card-header" id="heading">
+                <h2 class="mb-0">
+                    @{
+                        string mark = "mark" + i;
+                    }
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target='#@mark' aria-expanded="false" aria-controls="collapseTwo">
+                        @row["UnitNo"] : @row["UnitName"]
+                    </button>
+                </h2>
+            </div>
+            <div id='@mark' class="collapse" aria-labelledby="heading" data-parent="#accordionExample">
+                <div class="card-body">
+                    @{
+                        string id = "";
+                    }
+
+                    @foreach (DataRow r in Model.Tables["subunits"].Rows)
+                    {
+                        if (r["UnitID"].ToString() == row["ID"].ToString())
+                        {
+                            id = r["Id"].ToString();
+
+                            <div class="alert jumbotron container row">
+                                <div class="text-dark col">@row["UnitNo"].@r["SubUnitNo"] : @r["SubUnitName"]</div>
+
+                                <div class="text-right col">
+                                    <span class="mx-2 btn btn-sm btn-default"><i class="fas fa-plus text-info"></i> @Html.ActionLink("Add Questions", "AddQuestion", "examiner", new { suid = @id }, new { @class = "text-white" })</span>
+                                    <span class="btn btn-sm btn-default"> <i class="fas fa-eye text-warning"></i> @Html.ActionLink("View Questions", "ViewQuestions", "examiner", new { suid = @id }, new { @class = "text-white" })</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        i++;
+    }
+</div>

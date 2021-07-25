@@ -1,0 +1,263 @@
+﻿@using System.Data
+@model DataSet
+@if (Session["id"] != null)
+{
+    if (Session["id"].ToString() == "1")
+    {
+        ViewBag.Title = "View Examiners";
+        Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+else
+{
+    <script>
+            window.location.href = "@Url.Action("Login","Home")";
+    </script>
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@Html.AntiForgeryToken()
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<!----link href="~/Fontawesome/css/all.min.css" rel="stylesheet" /--->
+<link href="//cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet" />
+<table class="table table-responsive-sm" id="tblexaminer">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Profile</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Status</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            int i = 1;
+            string status = "";
+            string statusclass = "";
+            string btnstatusclass = "";
+        }
+        @foreach (DataRow row in Model.Tables[0].Rows)
+        {
+            status = row["Status"].ToString();
+            if (status == "1")
+            {
+                status = "Inactive";
+                statusclass = "badge badge-pill badge-secondary";
+                btnstatusclass = "fas fa-eye";
+            }
+            else
+            {
+                status = "Active";
+                statusclass = "badge badge-pill badge-info";
+                btnstatusclass = "fas fa-eye-slash";
+
+            }
+            <tr>
+                <th scope="row">@i</th>
+                <td><img src='@row["Image"].ToString()' alt="error" height="100px" width="100px" class="img-fluid"</td>
+                <td>@row["Fname"]</td>
+                <td>@row["Lname"]</td>
+                <td>@row["Email"]</td>
+                <td><span class="@statusclass">@status</span></td>
+                <td>
+                    <button id=@row["Id"] class="btn btn-outline-success btn-sm border-0 btn-ch-status"><i class="@btnstatusclass"></i></button>
+                    <button id=@row["Id"] class="btn btn-outline-warning btn-sm border-0 btn-edit"><i class="fas fa-edit"></i></button>
+                    <button id=@row["Id"] class="btn btn-outline-danger btn-sm border-0 btn-delete"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            </tr>
+            i++;
+        }
+    </tbody>
+</table>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Alert</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure want to delete this examiner?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" id="ajaxdelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Update Modal -->
+<div class="modal fade" id="editmodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Edit Examiner</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="fname">Firstname</label>
+                    <input type="text" class="form-control" id="fname" name="fname" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label for="lname">Lastname</label>
+                    <input type="text" class="form-control" id="lname" name="lname" maxlength="20">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" id="btn-update" class="btn btn-warning" data-dismiss="modal">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/Scripts/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#tblexaminer').DataTable();
+    });
+
+    $(".btn-ch-status").click(function () {
+        let id = this.id;
+        let currentstatus = this.parentElement.parentElement.children[5].children[0].innerText;
+        let label = this.parentElement.parentElement.children[5].children[0];
+        let element = this.children[0];
+        $.ajax({
+            type: "POST",
+            url: "ChangeExaminerStatus",
+            data: {
+                chid: id
+            },
+            success: function (result) {
+                if (result == "done") {
+                    if (currentstatus == "Active") {
+                        element.classList.remove("fa-eye-slash");
+                        element.classList.add("fa-eye");
+                        label.classList.remove("badge-info");
+                        label.classList.add("badge-secondary");
+                        label.innerText = "Inactive";
+                    }
+                    else {
+                        element.classList.remove("fa-eye");
+                        element.classList.add("fa-eye-slash");
+                        label.classList.remove("badge-secondary");
+                        label.classList.add("badge-info");
+                        label.innerText = "Active";
+                    }
+                }
+                else {
+                    alert("error");
+                }
+            }
+        });
+    });
+    let block;
+    let eid = 0;
+    $(".btn-edit").click(function () {
+        eid = this.id;
+        $('#editmodal').modal('toggle');
+        $("#email").val(this.parentElement.parentElement.children[4].innerText);
+        $("#fname").val(this.parentElement.parentElement.children[2].innerText);
+        $("#lname").val(this.parentElement.parentElement.children[3].innerText);
+        block = this.parentElement.parentElement;
+        console.log(block);
+    });
+    $("#btn-update").click(function () {
+        let newemail = $("#email").val();
+        let newfname = $("#fname").val();
+        let newlname = $("#lname").val();
+        if ($("#email").val() != "" && $("#fname").val() != "" && $("#lname").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "UpdateExaminer",
+                data: {
+                    id: eid,
+                    email: newemail,
+                    fname: newfname,
+                    lname: newlname,
+                },
+                success: function (result) {
+                    if (result == "done") {
+                        Swal.fire(
+                            'Success!',
+                            'Record updated successfully!',
+                            'success'
+                        );
+                        block.children[4].innerText = newemail;
+                        block.children[2].innerText = newfname;
+                        block.children[3].innerText = newlname;
+                    }
+                    else {
+                        Swal.fire(
+                            'Error!',
+                            result,
+                            'error'
+                        )
+                    }
+                }
+            });
+        }
+        else {
+            Swal.fire(
+                'Error!',
+                'Empty Form!, Please fill the form',
+                'error'
+            )
+        }
+
+    });
+    let deleteid = 0;
+    $(".btn-delete").click(function () {
+        deleteid = this.id;
+        block = this.parentElement.parentElement;
+        $('#deletemodal').modal('toggle');
+    })
+    $("#ajaxdelete").click(function () {
+        $.ajax({
+            type: "POST",
+            url: "DeleteExaminer",
+            data: {
+                id: deleteid
+            },
+            success: function (result) {
+                if (result == "done") {
+                    Swal.fire(
+                        'Success!',
+                        'Examiner Deleted successfully!',
+                        'success'
+                    );
+                    block.remove();
+                }
+                else {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong!',
+                        'error'
+                    );
+                }
+            }
+        });
+    })
+</script>

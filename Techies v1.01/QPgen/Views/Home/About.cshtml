@@ -1,0 +1,29 @@
+﻿
+@{
+    ViewBag.Title = "About";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@Html.AntiForgeryToken()
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+<style>
+    #bodybg {
+        height: 100%;
+        background-size: cover;
+        background-image: url("../../Images/contactusbg.png");
+    }
+</style>
+<div class="jumbotron" style="margin-top: 5%;background-color: rgba(233, 236, 239,0.8)">
+    <h1 class="display-4">Online Question Paper Generator</h1>
+    <p class="lead">Developed by: Techies During Summer 2021</p>
+    <hr class="my-4">
+    <p>
+        Question Paper Generator is a special and unique Web Application, which is used in academic levels that
+        want to have a huge database of questions for frequent generation of question paper. It uses the question
+        stored in the question banks and generate paper according to the requirements of the user. This system is
+        very useful to generate question paper in a faster and easier way.
+    </p>
+</div>

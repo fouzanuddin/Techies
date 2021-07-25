@@ -1,0 +1,152 @@
+﻿@model QPgen.Models.Examiner
+@if (Session["id"] != null)
+{
+    if (Session["id"].ToString() == "1")
+    {
+        ViewBag.Title = "Add Examiner";
+        Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+else
+{
+    <script>
+            window.location.href = "@Url.Action("Login","Home")";
+    </script>
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+@using (Html.BeginForm("AddExaminer", "admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal container">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group row">
+            <div class="col">
+                @Html.LabelFor(model => model.FirstName, htmlAttributes: new { @class = "control-label col" })
+                <div class="col">
+                    @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col">
+                @Html.LabelFor(model => model.LastName, htmlAttributes: new { @class = "control-label col" })
+                <div class="col">
+                    @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col">
+                <label>Gender</label>
+                <div class="row mx-2">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" checked type="radio" name="gender" id="male" value="male">
+                        <label class="form-check-label" for="male">Male</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+                        <label class="form-check-label" for="female">Female</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="form-group row">
+            <div class="col-sm-4">
+                @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col" })
+                <div class="col">
+                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-sm-4">
+                @Html.Label("Enter Password", htmlAttributes: new { @class = "control-label col" })
+                <div class="col">
+                    @Html.PasswordFor(model => model.Pass1, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Pass1, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-sm-4">
+                @Html.Label("Re-enter Password", htmlAttributes: new { @class = "control-label col" })
+                <div class="col">
+                    @Html.PasswordFor(model => model.Pass2, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.Pass2, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <img src="~/Images/avatar1.png" alt="error" name="profile" id="profile" height="70" width="70" class="img-fluid mx-4" />
+                <input type="file" class="mt-4 col-sm-4" id="profileimage" name="profileimage" onchange="show(this)" />
+            </div>
+        </div>
+        <div class="form-group text-center">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Register" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+}
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#Pass1").attr("class", "form-control");
+        $("#Pass2").attr("class", "form-control");
+    })
+</script>
+@if (ViewBag.message != null)
+{
+    if (ViewBag.message == "done")
+    {
+        <script>
+            Swal.fire(
+                'Submitted!',
+                'Examiner has been added successfully!',
+                'success'
+            )
+        </script>
+    }
+    else
+    {
+        <script>
+            Swal.fire(
+                'Error!',
+                '@ViewBag.message',
+                'error'
+            )
+        </script>
+    }
+}
+<script>
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#profile').attr('src', e.target.result);
+            }
+
+            reader.readAsDataURL(input.files[0]); // convert to base64 string
+        }
+    }
+
+    $("#profileimage").change(function () {
+        readURL(this);
+    });
+</script>
+

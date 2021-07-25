@@ -1,0 +1,73 @@
+﻿@{
+    if (Session["id"] != null)
+    {
+        if (Session["id"].ToString() != "1")
+        {
+            ViewBag.Title = "Feedback";
+            Layout = "~/Views/Shared/_UserMaster.cshtml";
+        }
+        else
+        {
+            <script>
+            window.location.href = "@Url.Action("Login","Home")";
+            </script>
+        }
+    }
+    else
+    {
+        <script>
+            window.location.href = "@Url.Action("Login","Home")";
+        </script>
+    }
+}
+@{
+    Response.AppendHeader("Cache-Control", "no-cache,no-store,must-revalidate");
+    Response.AppendHeader("Pragma", "no-cache");
+    Response.AppendHeader("Expires", "0");
+}
+<div class="card col-sm-6 mx-auto">
+    <div class="card-body col-sm-10 mx-auto">
+        <form method="post">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" class="form-control" id="title" name="title" maxlength="20" placeholder="Enter Title here" required />
+            </div>
+            <div class="form-group">
+                <label for="desc">Description</label>
+                <textarea class="form-control" id="desc" name="desc" maxlength="500" placeholder="Enter description here" required></textarea>
+            </div>
+            <div class="form-group text-center my-4">
+                <input type="submit" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+@if (ViewBag.message != null)
+{
+    if (ViewBag.message == "done")
+    {
+        <script>
+            Swal.fire(
+                'Submitted!',
+                'Your feedback has been submitted successfully!',
+                'success'
+            )
+        </script>
+    }
+    else
+    {
+        <script>
+            Swal.fire(
+                'Error!',
+                '@ViewBag.message',
+                'error'
+            )
+        </script>
+    }
+}
+<script>
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+</script>
