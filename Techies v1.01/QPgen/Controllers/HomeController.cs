@@ -155,8 +155,8 @@ namespace QPgen.Controllers
         int sendotp(string tempemail)
         {
             string[] data = new string[2];
-            data[0] = "ladaebs14@gmail.com";
-            data[1] = "Abhay@123";
+            data[0] = "fouzanuddin@gmail.com";
+            data[1] = "fouzan@123";
             Random rand = new Random();
             int otp = rand.Next(100000, 999999);
             string body = "Your OTP for Email Verification is: " + otp;
