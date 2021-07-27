@@ -15,17 +15,20 @@ namespace QPgen.Controllers
     {
         databaseHelperController db = new databaseHelperController();
         // GET: admin
+      
+        public ActionResult ViewExaminers()
+        {
+            DataSet ds = db.viewexaminers();    
+            return View(ds);
+        }
+
         public ActionResult Dashboard()
         {
             string[] data = db.getinfo();
             ViewData["data"] = data;
             return View();
         }
-        public ActionResult ViewExaminers()
-        {
-            DataSet ds = db.viewexaminers();    
-            return View(ds);
-        }
+
         [HttpPost]
         public ActionResult ChangeExaminerStatus(int chid)
         {
@@ -36,13 +39,24 @@ namespace QPgen.Controllers
             }
             return Json("error");
         }
+
+        [HttpPost]
+        public ActionResult DeleteExaminer(int id)
+        {
+            int x = db.deleteexaminer(id);
+            if (x == 1)
+            {
+                return Json("done");
+            }
+            return Json("error");
+        }
         [HttpPost]
         public ActionResult UpdateExaminer(int id, string email, string fname, string lname)
         {
             if (id != 0 && email != "" && fname != "" && lname != "")
             {
-                int x = db.updateexaminer(id,email,fname,lname);
-                if(x == 1)
+                int x = db.updateexaminer(id, email, fname, lname);
+                if (x == 1)
                 {
                     return Json("done");
                 }
@@ -55,16 +69,6 @@ namespace QPgen.Controllers
             {
                 return Json("Invalid Details, Error in Updation");
             }
-        }
-        [HttpPost]
-        public ActionResult DeleteExaminer(int id)
-        {
-            int x = db.deleteexaminer(id);
-            if (x == 1)
-            {
-                return Json("done");
-            }
-            return Json("error");
         }
         public ActionResult ViewDeletedExaminers()
         {
