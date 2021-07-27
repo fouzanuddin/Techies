@@ -10,14 +10,18 @@ using System.Web;
 
 namespace QPgen.Controllers
 {
+    // Database helper methods is called whenever any database operation is performed 
     public class databaseHelperController
     {
         static string strcon = ConfigurationManager.ConnectionStrings["dbcon"].ConnectionString;
+        // Connection string
         SqlConnection con = new SqlConnection(strcon);
+        // Establishing a database connection
         public int getID(string username)
         {
             SqlCommand cmd = new SqlCommand("GetID", con);
             cmd.CommandType = CommandType.StoredProcedure;
+            // Calling Stored procedure getID
             cmd.Parameters.AddWithValue("@username", username);
             con.Open();
             int id = (int)cmd.ExecuteScalar();
@@ -28,6 +32,7 @@ namespace QPgen.Controllers
         {
             SqlCommand cmd = new SqlCommand("CheckEmail", con);
             cmd.CommandType = CommandType.StoredProcedure;
+            // Calling stored procedure checkemail
             cmd.Parameters.AddWithValue("@email", email);
             con.Open();
             int id = (int)cmd.ExecuteScalar();
@@ -36,6 +41,7 @@ namespace QPgen.Controllers
         }
         public int checklogin(string username, string password)
         {
+            // Method to check login username and password 
             string source = password;
             using (SHA256 sha256Hash = SHA256.Create())
             {
@@ -43,6 +49,7 @@ namespace QPgen.Controllers
             }
             SqlCommand cmd = new SqlCommand("CheckLogin", con);
             cmd.CommandType = CommandType.StoredProcedure;
+            // calling stored procedure checklogin with parameters as username and password
             cmd.Parameters.AddWithValue("@username", username);
             cmd.Parameters.AddWithValue("@password", password);
             con.Open();
@@ -52,9 +59,12 @@ namespace QPgen.Controllers
         }
         public string[] getinfo()
         {
+            // get info method is used for displaying dashboard related total counts list  
             string[] data = new string[4];
             SqlCommand cmd = new SqlCommand("GetInfo", con);
             cmd.CommandType = CommandType.StoredProcedure;
+
+            // calling stored procedure getInfo 
             con.Open();
             SqlDataReader sdr = cmd.ExecuteReader();
             sdr.Read();
@@ -62,15 +72,19 @@ namespace QPgen.Controllers
             data[1] = sdr[1].ToString();
             data[2] = sdr[2].ToString();
             data[3] = sdr[3].ToString();
+
+            // Procedure returning 4 values 
             sdr.Close();
             con.Close();
             return data;
         }
         public string[] getDashboardDetails(int id)
         {
+            // database helper method get Dashboard details is used for getting the detials of the logged in user like images and first name and last name 
             string []data = new string[3] ;
             SqlCommand cmd = new SqlCommand("GetDashboardDetails", con);
             cmd.CommandType = CommandType.StoredProcedure;
+            // Stored procedure getdashboard detials is called
             cmd.Parameters.AddWithValue("@id", id);
             con.Open();
             SqlDataReader sdr = cmd.ExecuteReader();
@@ -84,6 +98,7 @@ namespace QPgen.Controllers
         }
         public string[] getProfile(int id)
         {
+            // Get profile method is used to get the list of  entire profile of the logged in user like first name last name , email , inmage and gender
             string[] data = new string[6];
             SqlCommand cmd = new SqlCommand("GetProfile", con);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -101,7 +116,7 @@ namespace QPgen.Controllers
             return data;
         }
         public int CheckPassword(int id, string cpass)
-        {
+        {// check password database helper method
             string source = cpass;
             using (SHA256 sha256Hash = SHA256.Create())
             {
@@ -109,6 +124,7 @@ namespace QPgen.Controllers
             }
             SqlCommand cmd = new SqlCommand("CheckPassword", con);
             cmd.CommandType = CommandType.StoredProcedure;
+            // calling checkpassword stored procedure
             cmd.Parameters.AddWithValue("@id", id);
             cmd.Parameters.AddWithValue("@cpass", cpass);
             con.Open();
@@ -118,6 +134,7 @@ namespace QPgen.Controllers
         }
         public int changepassword(int id, string pass)
         {
+            // changing the password and generation SHA256 for the new password and storing in the database
             string source = pass;
             using (SHA256 sha256Hash = SHA256.Create())
             {
@@ -134,6 +151,7 @@ namespace QPgen.Controllers
         }
         public int UpdateProfile(int id, string fname, string lname, string gender)
         {
+            // Updating the profile and using the stored procedure Update Profile 
             SqlCommand cmd = new SqlCommand("UpdateProfile", con);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@id", id);
@@ -147,14 +165,18 @@ namespace QPgen.Controllers
         }
         public DataSet viewexaminers()
         {
+            // method returns a list of examiners 
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select Id,Fname,Lname,Email,Image,Status from tbl_users where Id != 1 and IsDeleted = '0'", con);
             sda.Fill(ds);
+
+            //sqldataadapter returns all the examiners with their first name last name email status information
             return ds;
         }
         public int ChangeExaminerStatus(int id)
-        {
+        {// updating the examiner status
             SqlCommand cmd = new SqlCommand("select Status from tbl_users where id = @id", con);
+            
             cmd.Parameters.AddWithValue("@id", id);
             con.Open();
             string x = cmd.ExecuteScalar().ToString();
@@ -167,6 +189,7 @@ namespace QPgen.Controllers
             }
             cmd = new SqlCommand("ChangeExaminerStatus", con);
             cmd.CommandType = CommandType.StoredProcedure;
+            // calling the stored procedure change examiner status with parameters as id and status of examiners
             cmd.Parameters.AddWithValue("@id", id);
             cmd.Parameters.AddWithValue("@status", status);
             con.Open();
@@ -176,6 +199,8 @@ namespace QPgen.Controllers
         }
         public int updateexaminer(int id, string email, string fname, string lname)
         {
+            
+            // update examiner method to update details of examiner like id , email , fname and last name
             SqlCommand cmd = new SqlCommand("UpdateExaminer", con);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@id", id);
@@ -189,6 +214,7 @@ namespace QPgen.Controllers
         }
         public int deleteexaminer(int id)
         {
+            // method that is used to delete the examiner by their id
             SqlCommand cmd = new SqlCommand("DeleteExaminer", con);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@id", id);
@@ -199,6 +225,7 @@ namespace QPgen.Controllers
         }
         public DataSet viewdeletedexaminers()
         {
+            // method that is used to display all the list of deleted examiners
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select Id,Fname,Lname,Email,Image,Status from tbl_users where IsDeleted = '1'", con);
             sda.Fill(ds);
@@ -206,6 +233,7 @@ namespace QPgen.Controllers
         }
         public int restoreexaminer(int id)
         {
+            // method that is used to restore the deleted examiner 
             SqlCommand cmd = new SqlCommand("RestoreExaminer", con);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@id", id);
@@ -216,6 +244,7 @@ namespace QPgen.Controllers
         }
         public int addexaminer(string fname, string lname, string email, string password, string image, string gender)
         {
+            // method that is used to store a new examiner into the database 
             string source = password;
             using (SHA256 sha256Hash = SHA256.Create())
             {
@@ -236,6 +265,7 @@ namespace QPgen.Controllers
         }
         public int addsubject(string subcode, string subname, string sem, string year)
         {
+            // method that is used to add a new subject 
             SqlCommand cmd = new SqlCommand("AddSubject", con);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@subjectcode", subcode);
@@ -249,6 +279,7 @@ namespace QPgen.Controllers
         }
         public DataSet viewsubjects()
         {
+            // method that is used to view all the subjects 
             SqlDataAdapter sda = new SqlDataAdapter("select * from tbl_subjects where IsDeleted = '0'",con);
             DataSet ds = new DataSet();
             sda.Fill(ds);
@@ -256,6 +287,7 @@ namespace QPgen.Controllers
         }
         public int updatesubject(int id, string subcode, string subname, string sem, string year)
         {
+            // updating the subject detials 
             SqlCommand cmd = new SqlCommand("UpdateSubject", con);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@id", id);
@@ -270,6 +302,7 @@ namespace QPgen.Controllers
         }
         public int deletesubject(int id)
         {
+            // deleting the subject 
             SqlCommand cmd = new SqlCommand("DeleteSubject", con);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@id", id);
@@ -280,6 +313,7 @@ namespace QPgen.Controllers
         }
         public DataSet viewdeletedsubjects()
         {
+            // viewing all the subjects that are deleted 
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select * from tbl_subjects where IsDeleted = '1'",con);
             sda.Fill(ds);
@@ -287,6 +321,7 @@ namespace QPgen.Controllers
         }
         public int restoresubject(int id)
         {
+            // restoring the deleted subject
             SqlCommand cmd = new SqlCommand("RestoreSubject", con);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@id", id);
@@ -297,6 +332,8 @@ namespace QPgen.Controllers
         }
         public int givefeedback(int eid,string title, string desc)
         {
+
+        // Method that is used when examiner gives feedback to admin and givefeedback method is used to store it 
             SqlCommand cmd = new SqlCommand("GiveFeedback", con);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@eid", eid);
@@ -309,6 +346,7 @@ namespace QPgen.Controllers
         }
         public DataSet viewfeedback()
         {
+            // Method that lists all the feedback given by examiner
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select f.Id, f.Eid, f.Title, f.Feedback, f.IsPinned, f.IsLiked, u.Fname, u.Lname, u.Image from tbl_Feedback f inner join tbl_users u on f.Eid = u.Id order by f.Id desc", con);
             sda.Fill(ds);
@@ -316,6 +354,7 @@ namespace QPgen.Controllers
         }
         public int pinfeedback(int id)
         {
+            // pin the feedback that is good
             SqlCommand cmd = new SqlCommand("PinFeedback", con);
             cmd.Parameters.AddWithValue("@id", id);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -326,6 +365,7 @@ namespace QPgen.Controllers
         }
         public int deletefeedback(int id)
         {
+            // deleting feedback
             SqlCommand cmd = new SqlCommand("DeleteFeedback", con);
             cmd.Parameters.AddWithValue("@id", id);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -336,6 +376,7 @@ namespace QPgen.Controllers
         }
         public DataSet getExaminerAndSubjects()
         {
+            // method to list examiner and their respective assigned subjects
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select Id, Fname, Lname from tbl_users",con);
             sda.Fill(ds,"examiner");
@@ -347,6 +388,7 @@ namespace QPgen.Controllers
         }
         public string assignsubject(int eid, int sid)
         {
+            // method to assign subject to examiner
             SqlCommand cmd = new SqlCommand("AssignSubject", con);
             cmd.Parameters.AddWithValue("@eid", eid);
             cmd.Parameters.AddWithValue("@sid", sid);
@@ -358,6 +400,7 @@ namespace QPgen.Controllers
         }
         public string updateassignsubject(int id,int eid, int sid)
         {
+            // update assigned subject to examiner
             SqlCommand cmd = new SqlCommand("UpdateAssignSubject", con);
             cmd.Parameters.AddWithValue("@id", id);
             cmd.Parameters.AddWithValue("@eid", eid);
@@ -370,6 +413,7 @@ namespace QPgen.Controllers
         }
         public int deleteassignsubject(int id)
         {
+            // delete the subject that is already assigned to a examiner
             SqlCommand cmd = new SqlCommand("DeleteAssignSubject", con);
             cmd.Parameters.AddWithValue("@id", id);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -380,6 +424,7 @@ namespace QPgen.Controllers
         }
         public DataSet getsubjects(int id)
         {
+            //method to get list of all subjects and their detials
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select a.SubjectId, s.SubjectCode, s.SubjectName, s.Sem, s.Year from tbl_subjectallocation a " +
                 "inner join tbl_subjects s on a.SubjectId = s.Id inner join tbl_users u on a.ExaminerId = u.Id where s.IsDeleted = '0' and u.Id = " + id, con);
@@ -399,6 +444,7 @@ namespace QPgen.Controllers
         }
         public DataSet getunits(int sch)
         {
+            // method to get all the list of units 
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select * from tbl_units where SubjectId = "+sch+" and IsDeleted = '0'", con);
             sda.Fill(ds);
@@ -406,6 +452,7 @@ namespace QPgen.Controllers
         }
         public string getsubjectname(int sid)
         {
+            // method to get subject name based on its id 
             SqlCommand cmd = new SqlCommand("GetSubjectName", con);
             cmd.Parameters.AddWithValue("@sid", sid);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -416,6 +463,7 @@ namespace QPgen.Controllers
         }
         public string getsubjectcode(int sid)
         {
+            // method to get subject code 
             SqlCommand cmd = new SqlCommand("GetSubjectCode", con);
             cmd.Parameters.AddWithValue("@sid", sid);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -426,6 +474,7 @@ namespace QPgen.Controllers
         }
         public string getunitname(int uid)
         {
+            // method to get unit name 
             SqlCommand cmd = new SqlCommand("GetUnitName", con);
             cmd.Parameters.AddWithValue("@uid", uid);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -436,6 +485,7 @@ namespace QPgen.Controllers
         }
         public int addunit(string unitno, string unitname, int sch)
         {
+            //method to add a new unit to a subject
             SqlCommand cmd = new SqlCommand("AddUnit", con);
             cmd.Parameters.AddWithValue("@unitno", unitno);
             cmd.Parameters.AddWithValue("@unitname", unitname);
@@ -448,6 +498,7 @@ namespace QPgen.Controllers
         }
         public int updateunit(int uid, int unitno, string unitname)
         {
+            // method to update unit 
             SqlCommand cmd = new SqlCommand("UpdateUnit", con);
             cmd.Parameters.AddWithValue("@unitno", unitno);
             cmd.Parameters.AddWithValue("@unitname", unitname);
@@ -460,6 +511,7 @@ namespace QPgen.Controllers
         }
         public int deleteunit(int uid)
         {
+            //method to delete unit 
             SqlCommand cmd = new SqlCommand("DeleteUnit", con);
             cmd.Parameters.AddWithValue("@uid", uid);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -470,6 +522,7 @@ namespace QPgen.Controllers
         }
         public DataSet getsubunits(int uid)
         {
+            // getting the list of subunits under a unit
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select * from tbl_subunits where UnitId = " + uid + " and IsDeleted = '0'", con);
             sda.Fill(ds);
@@ -477,6 +530,7 @@ namespace QPgen.Controllers
         }
         public int addsubunit(string suno, string suname, int uid)
         {
+            // adding new subunit under a unit
             SqlCommand cmd = new SqlCommand("AddSubUnit", con);
             cmd.Parameters.AddWithValue("@suno", suno);
             cmd.Parameters.AddWithValue("@suname", suname);
@@ -489,6 +543,7 @@ namespace QPgen.Controllers
         }
         public int updatesubunit(int suid, int suno, string suname)
         {
+            // Update subunit details 
             SqlCommand cmd = new SqlCommand("UpdateSubUnit", con);
             cmd.Parameters.AddWithValue("@suno", suno);
             cmd.Parameters.AddWithValue("@suname", suname);
@@ -501,6 +556,7 @@ namespace QPgen.Controllers
         }
         public int deletesubunit(int suid)
         {
+            // deleting subunit under a unit 
             SqlCommand cmd = new SqlCommand("DeleteSubUnit", con);
             cmd.Parameters.AddWithValue("@suid", suid);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -511,6 +567,7 @@ namespace QPgen.Controllers
         }
         public string getsubunitname(int suid)
         {
+            // getting the names of subunits of unit 
             SqlCommand cmd = new SqlCommand("GetSubUnitName", con);
             cmd.Parameters.AddWithValue("@suid", suid);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -521,6 +578,7 @@ namespace QPgen.Controllers
         }
         public DataSet getquestionbanks(int sid)
         {
+            // method to get question banks by subjects unit and subunits
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select * from tbl_units where SubjectId = " + sid + " and IsDeleted = '0'", con);
             sda.Fill(ds,"units");
@@ -530,6 +588,7 @@ namespace QPgen.Controllers
         }
         public int addquestion(string question, string opa, string opb, string opc, string opd, string level, int suid, string ans, string image)
         {
+            // Database helper method addquestions to add new questions to a subject 
             SqlCommand cmd = new SqlCommand("AddQuestion", con);
             cmd.Parameters.AddWithValue("@question", question);
             cmd.Parameters.AddWithValue("@opa", opa);
@@ -548,6 +607,7 @@ namespace QPgen.Controllers
         }
         public int updatequestion(int qid,string question, string opa, string opb, string opc, string opd, string level, string ans)
         {
+            // method to update questions
             SqlCommand cmd = new SqlCommand("UpdateQuestion", con);
             cmd.Parameters.AddWithValue("@qid", qid);
             cmd.Parameters.AddWithValue("@question", question);
@@ -565,6 +625,7 @@ namespace QPgen.Controllers
         }
         public DataSet viewquestions(int suid)
         {
+            // method to display questions by subject id 
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select * from tbl_questions where Suid = " + suid + " and IsDeleted = '0'", con);
             sda.Fill(ds);
@@ -572,6 +633,7 @@ namespace QPgen.Controllers
         }
         public int deletequestion(int qid)
         {
+            // method to delete questions by questions id 
             SqlCommand cmd = new SqlCommand("DeleteQuestion", con);
             cmd.Parameters.AddWithValue("@qid", qid);
             cmd.CommandType = CommandType.StoredProcedure;
@@ -582,6 +644,7 @@ namespace QPgen.Controllers
         }
         public DataSet viewpapers(int sid)
         {
+            // method to display list of papers by subject id 
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select * from tbl_papers where SubjectId = " + sid + " and IsDeleted = '0' order by Id desc", con);
             sda.Fill(ds);
@@ -589,6 +652,7 @@ namespace QPgen.Controllers
         }
         public int updateimage(int id, string imgpath)
         {
+            // update image method 
             SqlCommand cmd = new SqlCommand("UpdateImage", con);
             cmd.Parameters.AddWithValue("@id", id);
             cmd.Parameters.AddWithValue("@image", imgpath);
@@ -600,6 +664,7 @@ namespace QPgen.Controllers
         }
         public DataTable GetRandomQuestions(int noq, int suid, int level)
         {
+
             SqlDataAdapter sda = new SqlDataAdapter("SELECT top "+noq+" * FROM tbl_questions where Suid = "+suid+" and Difficulty = "+level+ " ORDER BY NEWID()", con);
             DataTable dt = new DataTable();
             sda.Fill(dt);
@@ -607,6 +672,7 @@ namespace QPgen.Controllers
         }
         public int createpaper(int sid, string date, string title, string duration, int marks, int noq)
         {
+            // creating paper with detials of exam duration , exam name , marks and no of questions
             SqlCommand cmd = new SqlCommand("CreatePaper", con);
             cmd.Parameters.AddWithValue("@sid", sid);
             cmd.Parameters.AddWithValue("@date", date);
@@ -640,7 +706,7 @@ namespace QPgen.Controllers
             con.Close();
         }
         public DataSet getpaper(int pid)
-        {
+        {//get paper database helper method 
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select * from tbl_papers where Id = "+pid+" and IsDeleted = '0'", con);
             sda.Fill(ds,"tblpaper");
@@ -660,6 +726,7 @@ namespace QPgen.Controllers
         }
         public DataSet viewpapersubjects()
         {
+            // function that returns list of papers by subjects 
             DataSet ds = new DataSet();
             SqlDataAdapter sda = new SqlDataAdapter("select distinct p.SubjectId, s.SubjectName, s.SubjectCode from tbl_papers p inner join tbl_subjects s on p.SubjectId = s.Id where p.IsDeleted = 0", con);
             sda.Fill(ds);
