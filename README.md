@@ -1,2 +1,0 @@
-# Techies
-Fouzan uddin
