@@ -1,4 +1,10 @@
-﻿@using System.Data
+﻿@*
+
+C sharp file for Assign Subject to examiner by techies 
+
+*@
+
+@using System.Data
 @model DataSet
 @if (Session["id"] != null)
 {
@@ -79,7 +85,7 @@ else
                         <td>@row["SubjectCode"]</td>
                         <td>@row["SubjectName"]</td>
                         <td>
-                            <button id=@row["Id"] class="btn btn-outline-warning btn-sm border-0 btn-edit"><i class="fas fa-edit"></i></button>
+                            <!----button id=@row["Id"] class="btn btn-outline-warning btn-sm border-0 btn-edit"><i class="fas fa-edit"></i></!--button-->
                             <button id=@row["Id"] class="btn btn-outline-danger btn-sm border-0 btn-delete"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     </tr>
