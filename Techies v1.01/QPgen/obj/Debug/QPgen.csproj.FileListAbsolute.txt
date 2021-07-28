@@ -180,4 +180,3 @@ C:\Users\ammar\Documents\GitHub\Techies\Techies v1.01\QPgen\obj\Debug\QPgen.cspr
 C:\Users\ammar\Documents\GitHub\Techies\Techies v1.01\QPgen\obj\Debug\QPgen.csproj.CopyComplete
 C:\Users\ammar\Documents\GitHub\Techies\Techies v1.01\QPgen\obj\Debug\QPgen.dll
 C:\Users\ammar\Documents\GitHub\Techies\Techies v1.01\QPgen\obj\Debug\QPgen.pdb
-C:\Users\ammar\Documents\GitHub\Techies\Techies v1.01\QPgen\obj\Debug\QPgen.csproj.AssemblyReference.cache
